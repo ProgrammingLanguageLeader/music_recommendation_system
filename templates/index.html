@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Last.fm music recommendations system
+{% endblock %}
+
+{% block content %}
+    <h1>Description</h1>
+    <p>Blablabla</p>
+    <hr />
+    <form class="mt-2" method="post" novalidate>
+        {% csrf_token %}
+        <div class="mt-4">
+            <h3>Artists</h3>
+            <div id="artist-form-fields"></div>
+            <div class="mt-3 text-center">
+                <button type="button" id="add_more_artists_btn" class="btn btn-primary">Add more artists</button>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h3>Tracks</h3>
+            <div id="track-form-fields"></div>
+            <div class="mt-3 text-center">
+                <button type="button" id="add_more_tracks_btn" class="btn btn-primary">Add more tracks</button>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h3>Tags and genres</h3>
+            <div id="tag-form-fields"></div>
+            <div class="mt-3 text-center">
+                <button type="button" id="add_more_tags_btn" class="btn btn-primary">Add more tags</button>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-4 text-center">
+            <button type="submit" id="find_recommendations_btn" class="btn btn-success">Find recommedations</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        let artistsCount = 1;
+        let tracksCount = 1;
+        let tagsCount = 3;
+
+        const artistFormTemplate = (index) => `
+            <div class="form-group row m-2">
+                <label for="artist-name" class="col-3 col-form-label">
+                    Artist name
+                </label>
+                <div class="col-9">
+                    <input class="form-control m-1" type="text" size="32" name="artist_name_${index}" placeholder="Artist name">
+                </div>
+            </div>
+        `;
+
+        const trackFormTemplate = (index) => `
+            <div class="form-group row m-2">
+                <label for="track-name" class="col-3 col-form-label">
+                    Track name
+                </label>
+                <div class="col-9">
+                    <input class="form-control m-1" type="text" size="20" name="artist_name_${index}" placeholder="Track name">
+                </div>
+            </div>
+        `;
+
+        const tagFormTemplate = (index) => `
+            <div class="form-group row m-2">
+                <label for="tag-name" class="col-3 col-form-label">
+                    Tag/genre name
+                </label>
+                <div class="col-9">
+                    <input class="form-control m-1" type="text" size="20" name="tag_name_${index}" placeholder="Tag/genre name">
+                </div>
+            </div>
+        `;
+
+        const renderForm = () => {
+            let artist_form_fields_html = '';
+            for (let i = 0; i < artistsCount; i++) {
+                artist_form_fields_html += artistFormTemplate(i);
+            }
+            $('#artist-form-fields').html(artist_form_fields_html);
+
+            let track_form_fields_html = '';
+            for (let i = 0; i < tracksCount; i++) {
+                track_form_fields_html += trackFormTemplate(i);
+            }
+            $('#track-form-fields').html(track_form_fields_html);
+
+            let tag_form_field_html = '';
+            for (let i = 0; i < tagsCount; i++) {
+                tag_form_field_html += tagFormTemplate(i);
+            }
+            $('#tag-form-fields').html(tag_form_field_html);
+        };
+
+        $(document).ready( () => {
+            renderForm();
+        });
+
+        $('#add_more_artists_btn').click( () => {
+            artistsCount++;
+            renderForm()
+        });
+
+        $('#add_more_tracks_btn').click( () => {
+            tracksCount++;
+            renderForm()
+        });
+
+        $('#add_more_tags_btn').click( () => {
+            tagsCount++;
+            renderForm()
+        });
+    </script>
+{% endblock %}
