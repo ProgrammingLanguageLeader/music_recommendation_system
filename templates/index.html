@@ -8,13 +8,13 @@
     <h1>Description</h1>
     <p>Blablabla</p>
     <hr />
-    <form class="mt-2" method="post" novalidate>
+    <form class="mt-2" method="get" action="{% url 'results' %}" novalidate>
         {% csrf_token %}
         <div class="mt-4">
             <h3>Artists</h3>
             <div id="artist-form-fields"></div>
             <div class="mt-3 text-center">
-                <button type="button" id="add_more_artists_btn" class="btn btn-primary">Add more artists</button>
+                <button type="button" id="add-more-artists-btn" class="btn btn-primary">Add more artists</button>
             </div>
         </div>
 
@@ -22,7 +22,7 @@
             <h3>Tracks</h3>
             <div id="track-form-fields"></div>
             <div class="mt-3 text-center">
-                <button type="button" id="add_more_tracks_btn" class="btn btn-primary">Add more tracks</button>
+                <button type="button" id="add-more-tracks-btn" class="btn btn-primary">Add more tracks</button>
             </div>
         </div>
 
@@ -30,92 +30,149 @@
             <h3>Tags and genres</h3>
             <div id="tag-form-fields"></div>
             <div class="mt-3 text-center">
-                <button type="button" id="add_more_tags_btn" class="btn btn-primary">Add more tags</button>
+                <button type="button" id="add-more-tags-btn" class="btn btn-primary">Add more tags</button>
             </div>
         </div>
 
         <div class="mt-4 mb-4 text-center">
-            <button type="submit" id="find_recommendations_btn" class="btn btn-success">Find recommedations</button>
+            <button type="submit" id="find-recommendations-btn" class="btn btn-success">Find recommedations</button>
         </div>
     </form>
 {% endblock %}
 
 {% block javascript %}
     <script>
-        let artistsCount = 1;
-        let tracksCount = 1;
-        let tagsCount = 3;
+        let formState = {
+            artistNames: [''],
+            trackNames: [''],
+            tagNames: ['', '', ''],
+        };
 
-        const artistFormTemplate = (index) => `
-            <div class="form-group row m-2">
+        const artistFormTemplate = (index, value='') => `
+            <div id="artist-form-${index}" class="form-group row m-2">
                 <label for="artist-name" class="col-3 col-form-label">
                     Artist name
                 </label>
-                <div class="col-9">
-                    <input class="form-control m-1" type="text" size="32" name="artist_name_${index}" placeholder="Artist name">
+                <div class="col-7">
+                    <input class="artist-name form-control m-1" type="text" size="32" name="artist_name_${index}" placeholder="Artist name" value="${value}">
+                </div>
+                <div class="col-2">
+                    <button id="remove-artist-btn-${index}" type="button" class="m-1 btn btn-danger">Remove</button>
                 </div>
             </div>
         `;
 
-        const trackFormTemplate = (index) => `
-            <div class="form-group row m-2">
+        const trackFormTemplate = (index, value='') => `
+            <div id="track-form-${index}" class="form-group row m-2">
                 <label for="track-name" class="col-3 col-form-label">
                     Track name
                 </label>
-                <div class="col-9">
-                    <input class="form-control m-1" type="text" size="20" name="artist_name_${index}" placeholder="Track name">
+                <div class="col-7">
+                    <input class="track-name form-control m-1" type="text" size="20" name="artist_name_${index}" placeholder="Track name" value="${value}">
+                </div>
+                <div class="col-2">
+                    <button id="remove-track-btn-${index}" type="button" class="m-1 btn btn-danger">Remove</button>
                 </div>
             </div>
         `;
 
-        const tagFormTemplate = (index) => `
-            <div class="form-group row m-2">
+        const tagFormTemplate = (index, value='') => `
+            <div id="tag-form-${index}" class="form-group row m-2">
                 <label for="tag-name" class="col-3 col-form-label">
                     Tag/genre name
                 </label>
-                <div class="col-9">
-                    <input class="form-control m-1" type="text" size="20" name="tag_name_${index}" placeholder="Tag/genre name">
+                <div class="col-7">
+                    <input class="tag-name form-control m-1" type="text" size="20" name="tag_name_${index}" placeholder="Tag/genre name" value="${value}">
+                </div>
+                <div class="col-2">
+                    <button id="remove-tag-btn-${index}" type="button" class="m-1 btn btn-danger">Remove</button>
                 </div>
             </div>
         `;
 
         const renderForm = () => {
             let artist_form_fields_html = '';
-            for (let i = 0; i < artistsCount; i++) {
-                artist_form_fields_html += artistFormTemplate(i);
-            }
+            formState.artistNames.forEach( (artistName, artistIndex) => {
+                artist_form_fields_html += artistFormTemplate(artistIndex, artistName);
+            });
             $('#artist-form-fields').html(artist_form_fields_html);
+            formState.artistNames.forEach( (artistName, artistIndex) => {
+                $(`#remove-artist-btn-${artistIndex}`).click( () => {
+                    $(`#artist-form-${artistIndex}`).remove();
+                    formState = getFormState();
+                    renderForm();
+                });
+            });
 
             let track_form_fields_html = '';
-            for (let i = 0; i < tracksCount; i++) {
-                track_form_fields_html += trackFormTemplate(i);
-            }
+            formState.trackNames.forEach( (trackName, trackIndex) => {
+                track_form_fields_html += trackFormTemplate(trackIndex, trackName);
+            });
             $('#track-form-fields').html(track_form_fields_html);
+            formState.trackNames.forEach( (trackName, trackIndex) => {
+                $(`#remove-track-btn-${trackIndex}`).click( () => {
+                    $(`#track-form-${trackIndex}`).remove();
+                    formState = getFormState();
+                    //
+                    console.log(formState);
+                    renderForm();
+                });
+            });
 
-            let tag_form_field_html = '';
-            for (let i = 0; i < tagsCount; i++) {
-                tag_form_field_html += tagFormTemplate(i);
-            }
-            $('#tag-form-fields').html(tag_form_field_html);
+            let tag_form_fields_html = '';
+            formState.tagNames.forEach( (tagName, tagIndex) => {
+                tag_form_fields_html += tagFormTemplate(tagIndex, tagName);
+            });
+            $('#tag-form-fields').html(tag_form_fields_html);
+            formState.tagNames.forEach( (tagName, tagIndex) => {
+                $(`#remove-tag-btn-${tagIndex}`).click( () => {
+                    $(`#tag-form-${tagIndex}`).remove();
+                    formState = getFormState();
+                    renderForm();
+                });
+            });
+        };
+
+        const getFormState = () => {
+            let artistNames = $('.artist-name').get().map(field => {
+                return field.value;
+            });
+
+            let trackNames = $('.track-name').get().map(field => {
+                return field.value;
+            });
+
+            let tagNames = $('.tag-name').get().map(field => {
+                return field.value;
+            });
+
+            return {
+                artistNames: artistNames,
+                trackNames: trackNames,
+                tagNames: tagNames,
+            };
         };
 
         $(document).ready( () => {
             renderForm();
         });
 
-        $('#add_more_artists_btn').click( () => {
-            artistsCount++;
-            renderForm()
+        $('#add-more-artists-btn').click( () => {
+            formState = getFormState();
+            formState.artistNames.push('');
+            renderForm();
         });
 
-        $('#add_more_tracks_btn').click( () => {
-            tracksCount++;
-            renderForm()
+        $('#add-more-tracks-btn').click( () => {
+            formState = getFormState();
+            formState.trackNames.push('');
+            renderForm();
         });
 
-        $('#add_more_tags_btn').click( () => {
-            tagsCount++;
-            renderForm()
+        $('#add-more-tags-btn').click( () => {
+            formState = getFormState();
+            formState.tagNames.push('');
+            renderForm();
         });
     </script>
 {% endblock %}
