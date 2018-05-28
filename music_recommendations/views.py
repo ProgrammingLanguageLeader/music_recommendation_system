@@ -21,10 +21,16 @@ def results(request):
             track_names.append(value)
 
     network = LastfmNetwork()
-    try:
-        recommended_artists = network.get_similar_artists(artist_names[0])
-    except KeyError:
-        recommended_artists = ['']
+    recommended_artists = []
+    if artist_names:
+        for artist in artist_names:
+            recommended_artists += network.fetch_similar_artists(artist)
+
+    # artists_tags = [
+    #     network.fetch_top_tags_by_artist(artist_name)
+    #     for artist_name in recommended_artists
+    # ]
+    #
     recommended_tracks = ['']
     return render(
         request,

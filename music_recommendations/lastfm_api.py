@@ -10,7 +10,7 @@ class LastfmNetwork:
             api_key=Config.API_KEY
         )
 
-    def get_similar_artists(self, artist_name, count=10):
+    def fetch_similar_artists(self, artist_name, count=10):
         artist_obj = self.network.get_artist(artist_name)
 
         similar_artists = artist_obj.get_similar(limit=count)
@@ -35,16 +35,21 @@ class LastfmNetwork:
         ]
         return similar_artists
 
-    def get_top_tracks_by_artist(self, artist_name, count=3):
+    def fetch_top_tracks_by_artist(self, artist_name, count=3):
         artist = self.network.get_artist(artist_name)
         tracks = artist.get_top_tracks(limit=count)
         return [str(track.item) for track in tracks]
+
+    def fetch_top_tags_by_artist(self, artist_name, count=3):
+        artist = self.network.get_artist(artist_name)
+        tags = artist.get_top_tags(limit=count)
+        return [str(tag.item) for tag in tags]
 
 
 if __name__ == '__main__':
     a = LastfmNetwork()
     # s = a.get_similar_artists('System of a down')
     # print(s)
-    s = a.get_similar_artists('Lil Peep')
+    s = a.fetch_similar_artists('Lil Peep')
     print(s)
-    print(a.get_top_tracks_by_artist('Самое большое простое число'))
+    print(a.fetch_top_tracks_by_artist('Самое большое простое число'))

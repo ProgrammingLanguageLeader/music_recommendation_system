@@ -5,29 +5,34 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Description</h1>
+    <h1>Description of the project</h1>
     <p>Blablabla</p>
     <hr />
     <form class="mt-2" method="get" action="{% url 'results' %}" novalidate>
         {% csrf_token %}
-        <div class="mt-4">
-            <h3>Artists</h3>
+        <div class="form-group row mt-4">
+            <label for="recommend-by" class="col-3 col-form-label">Recommend by</label>
+            <select id="recommend-by" class="col-8 custom-select ml-3">
+                <option value="artists" selected>Artist</option>
+                <option value="tracks">Track</option>
+                <option value="tags">Tag</option>
+            </select>
+        </div>
+        <div id="artists-block" class="mt-4">
             <div id="artist-form-fields"></div>
             <div class="mt-3 text-center">
                 <button type="button" id="add-more-artists-btn" class="btn btn-primary">Add more artists</button>
             </div>
         </div>
 
-        <div class="mt-4">
-            <h3>Tracks</h3>
+        <div id="tracks-block" class="mt-4">
             <div id="track-form-fields"></div>
             <div class="mt-3 text-center">
                 <button type="button" id="add-more-tracks-btn" class="btn btn-primary">Add more tracks</button>
             </div>
         </div>
 
-        <div class="mt-4">
-            <h3>Tags and genres</h3>
+        <div id="tags-block" class="mt-4">
             <div id="tag-form-fields"></div>
             <div class="mt-3 text-center">
                 <button type="button" id="add-more-tags-btn" class="btn btn-primary">Add more tags</button>
@@ -43,54 +48,59 @@
 {% block javascript %}
     <script>
         let formState = {
-            artistNames: [''],
-            trackNames: [''],
+            recommendBy: 'artists',
+            artistNames: ['', '', ''],
+            trackNames: ['', '', ''],
             tagNames: ['', '', ''],
         };
 
         const artistFormTemplate = (index, value='') => `
-            <div id="artist-form-${index}" class="form-group row m-2">
+            <div id="artist-form-${index}" class="form-group row mt-2">
                 <label for="artist-name" class="col-3 col-form-label">
                     Artist name
                 </label>
                 <div class="col-7">
-                    <input class="artist-name form-control m-1" type="text" size="32" name="artist_name_${index}" placeholder="Artist name" value="${value}">
+                    <input class="artist-name form-control" type="text" size="32" name="artist_name_${index}" placeholder="Artist name" value="${value}">
                 </div>
                 <div class="col-2">
-                    <button id="remove-artist-btn-${index}" type="button" class="m-1 btn btn-danger">Remove</button>
+                    <button id="remove-artist-btn-${index}" type="button" class="btn btn-danger">Remove</button>
                 </div>
             </div>
         `;
 
         const trackFormTemplate = (index, value='') => `
-            <div id="track-form-${index}" class="form-group row m-2">
+            <div id="track-form-${index}" class="form-group row mt-2">
                 <label for="track-name" class="col-3 col-form-label">
                     Track name
                 </label>
                 <div class="col-7">
-                    <input class="track-name form-control m-1" type="text" size="20" name="track_name_${index}" placeholder="Track name" value="${value}">
+                    <input class="track-name form-control" type="text" size="20" name="track_name_${index}" placeholder="Track name" value="${value}">
                 </div>
                 <div class="col-2">
-                    <button id="remove-track-btn-${index}" type="button" class="m-1 btn btn-danger">Remove</button>
+                    <button id="remove-track-btn-${index}" type="button" class="btn btn-danger">Remove</button>
                 </div>
             </div>
         `;
 
         const tagFormTemplate = (index, value='') => `
-            <div id="tag-form-${index}" class="form-group row m-2">
+            <div id="tag-form-${index}" class="form-group row mt-2">
                 <label for="tag-name" class="col-3 col-form-label">
                     Tag/genre name
                 </label>
                 <div class="col-7">
-                    <input class="tag-name form-control m-1" type="text" size="20" name="tag_name_${index}" placeholder="Tag/genre name" value="${value}">
+                    <input class="tag-name form-control" type="text" size="20" name="tag_name_${index}" placeholder="Tag/genre name" value="${value}">
                 </div>
                 <div class="col-2">
-                    <button id="remove-tag-btn-${index}" type="button" class="m-1 btn btn-danger">Remove</button>
+                    <button id="remove-tag-btn-${index}" type="button" class="btn btn-danger">Remove</button>
                 </div>
             </div>
         `;
 
         const renderForm = () => {
+            let artistsBlock = $('#artists-block');
+            let tracksBlock = $('#tracks-block');
+            let tagsBlock = $('#tags-block');
+
             let artist_form_fields_html = '';
             formState.artistNames.forEach( (artistName, artistIndex) => {
                 artist_form_fields_html += artistFormTemplate(artistIndex, artistName);
@@ -113,8 +123,6 @@
                 $(`#remove-track-btn-${trackIndex}`).click( () => {
                     $(`#track-form-${trackIndex}`).remove();
                     formState = getFormState();
-                    //
-                    console.log(formState);
                     renderForm();
                 });
             });
@@ -131,22 +139,36 @@
                     renderForm();
                 });
             });
+
+            tagsBlock.hide();
+            artistsBlock.hide();
+            tracksBlock.hide();
+            let recommendBy = formState.recommendBy;
+            if (recommendBy === 'artists') {
+                artistsBlock.show();
+            }
+            else if (recommendBy === 'tracks') {
+                tracksBlock.show();
+            }
+            else if (recommendBy === 'tags') {
+                tagsBlock.show();
+            }
         };
 
         const getFormState = () => {
+            let recommendBy = $('#recommend-by').val();
             let artistNames = $('.artist-name').get().map(field => {
                 return field.value;
             });
-
             let trackNames = $('.track-name').get().map(field => {
                 return field.value;
             });
-
             let tagNames = $('.tag-name').get().map(field => {
                 return field.value;
             });
 
             return {
+                recommendBy: recommendBy,
                 artistNames: artistNames,
                 trackNames: trackNames,
                 tagNames: tagNames,
@@ -154,6 +176,11 @@
         };
 
         $(document).ready( () => {
+            renderForm();
+        });
+
+        $('#recommend-by').change( () => {
+            formState = getFormState();
             renderForm();
         });
 
