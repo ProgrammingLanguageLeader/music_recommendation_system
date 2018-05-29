@@ -8,18 +8,30 @@
     <h1 class="mb-4">Your recommendations</h1>
     <div class="mb-4">
         <h2>Artists</h2>
-        <ul class="list-group">
-            {% for artist in recommended_artists %}
-                <li class="list-group-item">{{ artist }}</li>
-            {% endfor %}
-        </ul>
+        {% if not recommended_artists %}
+            <div class="alert alert-danger">
+                Can't find any artists for your request. Please, check input data.
+            </div>
+        {% else %}
+            <ul class="list-group">
+                {% for artist in recommended_artists %}
+                    <li class="list-group-item">{{ artist }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
     <div class="mb-4">
         <h2>Tracks</h2>
-        <ul class="list-group">
+        {% if not recommended_tracks %}
+            <div class="alert alert-danger">
+                Can't find any tracks for your request. Please, check input data.
+            </div>
+        {% else %}
+            <ul class="list-group">
             {% for track in recommended_tracks %}
                 <li class="list-group-item">{{ track }}</li>
             {% endfor %}
-        </ul>
+            </ul>
+        {% endif %}
     </div>
 {% endblock %}

@@ -6,16 +6,16 @@
 
 {% block content %}
     <h1>Description of the project</h1>
-    <p>Blablabla</p>
+    <p>TODO: add project description</p>
     <hr />
-    <form class="mt-2" method="get" action="{% url 'results' %}" novalidate>
+    <form id="query-form" class="mt-2" method="get" action="{% url 'results' %}" novalidate>
         {% csrf_token %}
         <div class="form-group row mt-4">
             <label for="recommend-by" class="col-3 col-form-label">Recommend by</label>
-            <select id="recommend-by" class="col-8 custom-select ml-3">
-                <option value="artists" selected>Artist</option>
-                <option value="tracks">Track</option>
-                <option value="tags">Tag</option>
+            <select id="recommend-by" form="query-form" name="recommend_by" class="col-8 custom-select ml-3">
+                <option value="artists">artists</option>
+                <option value="tracks">tracks</option>
+                <option value="tags">tags</option>
             </select>
         </div>
         <div id="artists-block" class="mt-4">
@@ -153,6 +153,7 @@
             else if (recommendBy === 'tags') {
                 tagsBlock.show();
             }
+            $('#recommend-by').val(recommendBy)
         };
 
         const getFormState = () => {
