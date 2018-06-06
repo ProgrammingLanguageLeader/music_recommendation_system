@@ -25,7 +25,10 @@ SECRET_KEY = 'ln4unamc948wbu)i3yyvxrf%2j$v6+k6d5gfw@!86o5fko(@n^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    '.herokuapp.com'
+]
 
 
 # Application definition
@@ -75,12 +78,7 @@ WSGI_APPLICATION = 'LastFM_recommendation_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+DATABASES = {}
 
 
 # Password validation
@@ -105,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
@@ -116,10 +114,15 @@ USE_L10N = True
 USE_TZ = True
 
 
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
