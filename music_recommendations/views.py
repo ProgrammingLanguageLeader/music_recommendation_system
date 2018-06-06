@@ -2,7 +2,7 @@ import re
 from django.shortcuts import render
 from django.http import JsonResponse
 
-from lastfm_api import LastfmNetwork
+from .lastfm_api import LastfmNetwork
 
 
 def index(request):
