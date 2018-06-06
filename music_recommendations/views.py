@@ -1,5 +1,6 @@
 import re
 from django.shortcuts import render
+from django.http import JsonResponse
 
 from lastfm_api import LastfmNetwork
 
@@ -10,7 +11,6 @@ def index(request):
 
 def results(request):
     artists_limit = 20
-    tracks_limit = 60
 
     try:
         recommend_by = request.GET['recommend_by']
@@ -29,7 +29,6 @@ def results(request):
 
     network = LastfmNetwork()
     recommended_artists = []
-    recommended_tracks = []
     if recommend_by == 'artists':
         similar_artists = network.fetch_similar_artists(
             artists_names=artists_names,
@@ -52,17 +51,11 @@ def results(request):
         recommended_artists = network.sort_artists_by_tag_collision(
             recommended_artists
         )
+    recommended_artists = [artist.name for artist in recommended_artists]
 
-    for artist in recommended_artists:
-        recommended_tracks += network.fetch_top_tracks_by_artist_name(
-            artist_name=artist
-        )
-
-    return render(
-        request,
-        'results.html',
-        context={
-            'recommended_artists': recommended_artists[:artists_limit],
-            'recommended_tracks': recommended_tracks[:tracks_limit],
-        }
-    )
+    data = {
+        'isTaken': True,
+        'recommendedArtists': recommended_artists[:artists_limit],
+        'success': bool(recommended_artists),
+    }
+    return JsonResponse(data)

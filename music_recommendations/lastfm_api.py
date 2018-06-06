@@ -90,4 +90,3 @@ class LastfmNetwork:
                 limit=limit
             )
         return top_artists
-

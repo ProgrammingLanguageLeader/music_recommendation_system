@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}
     Last.fm music recommendation system
@@ -8,7 +9,7 @@
     <h1>Description of the project</h1>
     <p>TODO: add project description</p>
     <hr />
-    <form id="query-form" class="mt-2" method="get" action="{% url 'results' %}" novalidate>
+    <form id="query-form" class="mt-2" method="get" novalidate>
         {% csrf_token %}
         <div class="form-group row mt-4">
             <label for="recommend-by" class="col-3 col-form-label">Recommend by</label>
@@ -43,6 +44,8 @@
             <button type="submit" id="find-recommendations-btn" class="btn btn-success">Find recommedations</button>
         </div>
     </form>
+
+    <div id="recommendations"></div>
 {% endblock %}
 
 {% block javascript %}
@@ -176,6 +179,38 @@
             };
         };
 
+        const renderResults = (recommendedArtists, success) => {
+            let artistsListItems = recommendedArtists.reduce( (result, artist) => {
+                return result + `<li class="list-group-item">${artist}</li>`;
+            }, '');
+
+            let artistsBlock = '';
+            if (success) {
+                artistsBlock = `
+                    <ol class="list-group">
+                        ${artistsListItems}
+                    </ol>
+                `;
+            } else {
+                artistsBlock = `
+                    <div class="alert alert-danger">
+                        Can't find any artists for your request. Please, check input data.
+                    </div>
+                `;
+            }
+
+            const resultsDivHtml = `
+                <hr />
+                <h1 class="mb-4">Your recommendations</h1>
+                <div class="mb-4">
+                    <h2>Artists</h2>
+                    ${artistsBlock}
+                </div>
+            `;
+
+            $('#recommendations').html(resultsDivHtml);
+        };
+
         $(document).ready( () => {
             renderForm();
         });
@@ -201,6 +236,23 @@
             formState = getFormState();
             formState.tagNames.push('');
             renderForm();
+        });
+
+        $('#query-form').submit( e => {
+            let queryForm = $('#query-form');
+            $.ajax({
+                type: "GET",
+                url: "{% url 'results' %}",
+                data: queryForm.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    if (data.isTaken) {
+                        let { success, recommendedArtists } = data;
+                        renderResults(recommendedArtists, success);
+                    }
+                }
+            });
+            e.preventDefault();
         });
     </script>
 {% endblock %}
