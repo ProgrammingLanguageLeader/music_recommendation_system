@@ -32,7 +32,7 @@ def results(request):
     if recommend_by == 'artists':
         similar_artists = network.fetch_similar_artists(
             artists_names=artists_names,
-            limit=10
+            limit=artists_limit
         )
         recommended_artists = network.sort_artists_by_tag_collision(
             similar_artists
